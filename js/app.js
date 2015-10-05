@@ -1,23 +1,13 @@
-//function initialize() {
-//	var mapCanvas = document.getElementById('map');
-//	var mapOptions = {
-//		
-//		center: new google.maps.LatLng(21.3286303, 39.9535998),
-//		zoom: 16,
-//		mapTypeId: google.maps.MapTypeId.ROADMAP
-//	}
-//	var map = new google.maps.Map(mapCanvas, mapOptions)
-//}
-//google.maps.event.addDomListener(window, 'load', initialize);
-
 function initMap() {
 	'use strict';
-	var myLatLng = {
+	// center map
+	var centerLatLng = {
 		lat: 21.3286303,
 		lng: 39.9535998
 	};
 
-	var neighborhoods = [
+	// markers data
+	var markersData = [
 		{
 			name: 'GISTIC0',
 			desc: 'description about GISTIC0',
@@ -51,47 +41,44 @@ function initMap() {
 			lng: 39.9482042
 		}];
 
+	// globals
+	var infowindow = new google.maps.InfoWindow();
+	var marker, i;
+
 	// Create a map object and specify the DOM element for display.
 	var map = new google.maps.Map(document.getElementById('map'), {
-		center: myLatLng,
+		center: centerLatLng,
 		scrollwheel: false,
 		mapTypeId: google.maps.MapTypeId.ROADMAP,
 		zoom: 16
-
 	});
 
-
-
-	var infowindow = new google.maps.InfoWindow();
-
-	var marker, i;
-	for (i = 0; i < neighborhoods.length; i++) {
-
+	// Display markers from markerData
+	for (i = 0; i < markersData.length; i++) {
+		// setup marker position and animation
 		marker = new google.maps.Marker({
-			position: new google.maps.LatLng(neighborhoods[i].lat, neighborhoods[i].lng),
+			position: new google.maps.LatLng(markersData[i].lat, markersData[i].lng),
 			map: map,
 			animation: google.maps.Animation.DROP
-
 		});
 
-
-		google.maps.event.addListener(marker, 'click', (function (marker, i) {
+		// getting the the current (i) when the user click on marker 
+		google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
 			return function () {
-
+				// setup content tamplate 
 				var contentString = '<div id="content">' +
 					'<div id="siteNotice">' +
 					'</div>' +
-					'<h4 id="firstHeading" class="firstHeading">'+ neighborhoods[i].name +'</h4>' +
+					'<h4 id="firstHeading" class="firstHeading">' + markersData[currentMarkerI].name + '</h4>' +
 					'<div id="bodyContent">' +
-					'<h6>'+neighborhoods[i].desc+'</h6>' +
-					'<p>'+neighborhoods[i].address+'</p>' +
-					'<p>Website: <a href="' + neighborhoods[i].link+ '" target="_blank">' + neighborhoods[i].link + '</a> </p>' +
+					'<h6>' + markersData[currentMarkerI].desc + '</h6>' +
+					'<p>' + markersData[currentMarkerI].address + '</p>' +
+					'<p>Website: <a href="' + markersData[currentMarkerI].link + '" target="_blank">' + markersData[currentMarkerI].link + '</a> </p>' +
 					'</div>' +
 					'</div>';
 				infowindow.setContent(contentString);
 				infowindow.open(map, marker);
-			}
+			};
 		})(marker, i));
 	}
-
 }
