@@ -1,4 +1,8 @@
- #map {
+.map {
  	width: 100vw;
  	height: 100vh;
+ }
+.search {
+ 	width: 100vw;
+ 	height: 15vh;
  }
