@@ -1,0 +1,21 @@
+{
+  "name": "Udacity-JS-Design-Patterns",
+  "version": "0.0.0",
+  "authors": [
+    "Ahmed Babadr <ahmad@ahmadssb.com>"
+  ],
+  "description": "",
+  "main": "index.html",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "homepage": "http://www.ahmadssb.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
