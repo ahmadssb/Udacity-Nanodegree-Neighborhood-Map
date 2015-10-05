@@ -19,6 +19,21 @@ function initMap() {
     scrollwheel: false,
     zoom: 16
   });
+	
+var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h2 id="firstHeading" class="firstHeading">KACST GIS Technology Innovation Center </h2>'+
+      '<div id="bodyContent">'+
+      '<p>Al Awali, Mecca 24381 </p>'+
+      '<p>Website: <a href="http://www.gistic.org" target="_blank">'+
+      'http://www.gistic.org</a> </p>'+
+      '</div>'+
+      '</div>';
+	
+ var infowindow = new google.maps.InfoWindow({
+    content: contentString
+  });
 
   // Create a marker and set its position.
   var marker = new google.maps.Marker({
@@ -27,5 +42,12 @@ function initMap() {
     title: 'GISTIC!',
 	 
   });
+	
+	
+ marker.addListener('click', function() {
+    infowindow.open(map, marker);
+  });
+ 
+
 }
 google.maps.event.addDomListener(window, 'load', initMap);
