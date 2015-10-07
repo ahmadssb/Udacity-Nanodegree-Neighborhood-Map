@@ -99,6 +99,7 @@ var ViewModel = {
 		}
 
 	},
+
 	setCurrentPlace: function () {
 
 	},
@@ -118,6 +119,14 @@ var ViewModel = {
 
 	markers: ko.observableArray([]),
 
+	// {Doesn't select the correct marker} To Open infoWindow for the selected place
+	selectedPlace: function (id) {
+		var infowindow = new google.maps.InfoWindow();
+		var contentString = ViewModel.contentString(id);
+		infowindow.setContent(contentString);
+		infowindow.open(map, marker);
+	},
+
 	initMap: function () {
 		map = new google.maps.Map(document.getElementById('map'), {
 			center: centerLatLng,
@@ -129,7 +138,8 @@ var ViewModel = {
 		ViewModel.addMarkerSet(ViewModel.markers());
 		console.log('markers');
 		console.log(ViewModel.markers());
-
+		
+		ViewModel.selectedPlace(3);
 	},
 
 	addMarker: function (lat, lng, i) {
