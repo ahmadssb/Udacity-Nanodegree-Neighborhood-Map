@@ -1,8 +1,9 @@
 .map {
- 	width: 100vw;
- 	height: 80vh;
+/* 	width: 70vw;*/
+ 	height: 100vh;
+	z-index: 0;
  }
 .search {
- 	width: 100vw;
- 	height: 20vh;
+/* 	width: 30vw;*/
+ 	height: 100vh;
  }
