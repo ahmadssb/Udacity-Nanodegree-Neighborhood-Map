@@ -88,17 +88,9 @@ var ViewModel = {
 	},
 	setCurrentPlace: function () {
 
-	}
+	},
 	
-	
-};
-
-ViewModel.query.subscribe(ViewModel.search);
-
-ko.applyBindings(ViewModel);
-
-
-function initMap() {
+	initMap: function () {
 	'use strict';
 	infowindow = new google.maps.InfoWindow();
 
@@ -139,3 +131,10 @@ function initMap() {
 		})(marker, i));
 	}
 }
+	
+};
+
+ViewModel.query.subscribe(ViewModel.search);
+
+ko.applyBindings(ViewModel);
+
