@@ -1,5 +1,5 @@
 // globals
-var marker, i, infowindow;
+var marker, i, infowindow, map, contentString;
 
 // center map
 var centerLatLng = {
@@ -80,6 +80,7 @@ var ViewModel = {
 				//ViewModel.placeList().visible=false;
 				if (placesData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
 					ViewModel.placeList.push(placesData[x]);
+					ViewModel.renderMarkers(map);
 					//placesData[x].visibile= true;
 				}
 			}
@@ -90,23 +91,26 @@ var ViewModel = {
 
 	},
 
-	initMap: function () {
-		'use strict';
-		infowindow = new google.maps.InfoWindow();
+	contentString: function (currentMarkerI) {
+		return '<div id="content">' +
+			'<div id="siteNotice">' +
+			'</div>' +
+			'<h4 id="firstHeading" class="firstHeading">' + ViewModel.placeList()[currentMarkerI].name + '</h4>' +
+			'<div id="bodyContent">' +
+			'<h6>' + ViewModel.placeList()[currentMarkerI].desc + '</h6>' +
+			'<p>' + ViewModel.placeList()[currentMarkerI].address + '</p>' +
+			'<p>Website: <a href="' + ViewModel.placeList()[currentMarkerI].link + '" target="_blank">' + ViewModel.placeList()[currentMarkerI].link + '</a> </p>' +
+			'</div>' +
+			'</div>';
+	},
 
-		// Create a map object and specify the DOM element for display.
-		var map = new google.maps.Map(document.getElementById('map'), {
-			center: centerLatLng,
-			scrollwheel: false,
-			mapTypeId: google.maps.MapTypeId.ROADMAP,
-			zoom: 16
-		});
 
+	renderMarkers: function (map) {
 		// Display markers from markerData
 		for (i = 0; i < placesData.length; i++) {
 			// setup marker position and animation
 			marker = new google.maps.Marker({
-				position: new google.maps.LatLng(placesData[i].lat, placesData[i].lng),
+				position: new google.maps.LatLng(ViewModel.placeList()[i].lat, ViewModel.placeList()[i].lng),
 				map: map,
 				animation: google.maps.Animation.DROP
 			});
@@ -115,23 +119,25 @@ var ViewModel = {
 			google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
 				return function () {
 					// setup content tamplate 
-					var contentString = '<div id="content">' +
-						'<div id="siteNotice">' +
-						'</div>' +
-						'<h4 id="firstHeading" class="firstHeading">' + placesData[currentMarkerI].name + '</h4>' +
-						'<div id="bodyContent">' +
-						'<h6>' + placesData[currentMarkerI].desc + '</h6>' +
-						'<p>' + placesData[currentMarkerI].address + '</p>' +
-						'<p>Website: <a href="' + placesData[currentMarkerI].link + '" target="_blank">' + placesData[currentMarkerI].link + '</a> </p>' +
-						'</div>' +
-						'</div>';
+					var contentString = ViewModel.contentString(currentMarkerI);
 					infowindow.setContent(contentString);
 					infowindow.open(map, marker);
 				};
 			})(marker, i));
 		}
-	}
+	},
 
+
+	initMap: function () {
+			map = new google.maps.Map(document.getElementById('map'), {
+				center: centerLatLng,
+				scrollwheel: false,
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				zoom: 16
+			});
+			ViewModel.renderMarkers(map);
+		}
+		//ViewModel.renderMarkers(map);
 };
 
 ViewModel.query.subscribe(ViewModel.search);
