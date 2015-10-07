@@ -72,7 +72,7 @@ var ViewModel = {
 			ViewModel.placeList(placesData);
 			console.log('ViewModel.placeList()');
 			console.log(ViewModel.placeList());
-			ViewModel.clearMarkers();
+			ViewModel.removeMarker();
 			ViewModel.addMarkerSet(ViewModel.markers());
 			console.log('ViewModel.markers()');
 			console.log(ViewModel.markers());
@@ -88,15 +88,14 @@ var ViewModel = {
 			for (var x in placesData) {
 				if (placesData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
 					ViewModel.placeList.push(placesData[x]);
-					console.log('Before Add ViewModel.addMarkerSet()');
-					console.log(ViewModel.placeList());
-					//ViewModel.addMarker(ViewModel.addMarkerSet(ViewModel.placeList()));
-					console.log('AfViewModel.markers()');
-					console.log(ViewModel.markers());
-					//ViewModel.renderMarkers(map);
-					//ViewModel.addMarker(ViewModel.markers()[x].lat, ViewModel.markers()[x].lng);
 				}
 			}
+			console.log('Before Add ViewModel.addMarkerSet()');
+			console.log(ViewModel.markers());
+			//ViewModel.addMarkerSet(ViewModel.placeList());
+			ViewModel.displayMarker();
+			console.log('After add ViewModel.markers()');
+			console.log(ViewModel.markers());
 		}
 
 	},
@@ -164,17 +163,6 @@ var ViewModel = {
 			map: map,
 			animation: google.maps.Animation.DROP
 		});
-		//		for (i = 0; i < ViewModel.markers().length; i++) {
-		//			// getting the the current (i) when the user click on marker 
-		//			google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
-		//				return function () {
-		//					// setup content tamplate 
-		//					var contentString = ViewModel.contentString(currentMarkerI);
-		//					infowindow.setContent(contentString);
-		//					infowindow.open(map, marker);
-		//				};
-		//			})(marker, i));
-		//		}
 		ViewModel.displayMarker();
 		ViewModel.markers.push(marker);
 	},
@@ -183,7 +171,6 @@ var ViewModel = {
 		for (i = 0; i < ViewModel.placeList().length; i++) {
 			ViewModel.addMarker(ViewModel.placeList()[i].lat, ViewModel.placeList()[i].lng);
 		}
-
 	},
 
 	setMarker: function (map) {
