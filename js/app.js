@@ -67,21 +67,34 @@ var ViewModel = {
 	search: function (value) {
 		//ViewModel.placeList.removeAll();
 		if (value === '') {
+			ViewModel.removeMarker();
 			console.log('Empty Value return placeData');
 			ViewModel.placeList(placesData);
+			console.log('ViewModel.placeList()');
 			console.log(ViewModel.placeList());
-			console.log(placesData);
-
+			ViewModel.clearMarkers();
+			ViewModel.addMarkerSet(ViewModel.markers());
+			console.log('ViewModel.markers()');
+			console.log(ViewModel.markers());
 		} else {
 			ViewModel.placeList(tempData);
 			ViewModel.placeList.removeAll();
+			console.log('Before Remove ViewModel.markers()');
+			console.log(ViewModel.markers());
+			ViewModel.removeMarker();
+			console.log('After Remove ViewModel.markers()');
+			console.log(ViewModel.markers());
 			console.log('Not Empty Value return founded data');
 			for (var x in placesData) {
-				//ViewModel.placeList().visible=false;
 				if (placesData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
 					ViewModel.placeList.push(placesData[x]);
-					ViewModel.renderMarkers(map);
-					//placesData[x].visibile= true;
+					console.log('Before Add ViewModel.addMarkerSet()');
+					console.log(ViewModel.placeList());
+					//ViewModel.addMarker(ViewModel.addMarkerSet(ViewModel.placeList()));
+					console.log('AfViewModel.markers()');
+					console.log(ViewModel.markers());
+					//ViewModel.renderMarkers(map);
+					//ViewModel.addMarker(ViewModel.markers()[x].lat, ViewModel.markers()[x].lng);
 				}
 			}
 		}
@@ -106,8 +119,10 @@ var ViewModel = {
 
 
 	renderMarkers: function (map) {
+		var infowindow = new google.maps.InfoWindow();
+
 		// Display markers from markerData
-		for (i = 0; i < placesData.length; i++) {
+		for (i = 0; i < ViewModel.placeList().length; i++) {
 			// setup marker position and animation
 			marker = new google.maps.Marker({
 				position: new google.maps.LatLng(ViewModel.placeList()[i].lat, ViewModel.placeList()[i].lng),
@@ -127,17 +142,80 @@ var ViewModel = {
 		}
 	},
 
+	markers: ko.observableArray([]),
 
 	initMap: function () {
-			map = new google.maps.Map(document.getElementById('map'), {
-				center: centerLatLng,
-				scrollwheel: false,
-				mapTypeId: google.maps.MapTypeId.ROADMAP,
-				zoom: 16
-			});
-			ViewModel.renderMarkers(map);
-		}
+		map = new google.maps.Map(document.getElementById('map'), {
+			center: centerLatLng,
+			scrollwheel: false,
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			zoom: 16
+		});
 		//ViewModel.renderMarkers(map);
+		ViewModel.addMarkerSet(ViewModel.markers());
+		console.log('markers');
+		console.log(ViewModel.markers());
+
+	},
+
+	addMarker: function (lat, lng) {
+		marker = new google.maps.Marker({
+			position: new google.maps.LatLng(lat, lng),
+			map: map,
+			animation: google.maps.Animation.DROP
+		});
+		//		for (i = 0; i < ViewModel.markers().length; i++) {
+		//			// getting the the current (i) when the user click on marker 
+		//			google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
+		//				return function () {
+		//					// setup content tamplate 
+		//					var contentString = ViewModel.contentString(currentMarkerI);
+		//					infowindow.setContent(contentString);
+		//					infowindow.open(map, marker);
+		//				};
+		//			})(marker, i));
+		//		}
+		ViewModel.displayMarker();
+		ViewModel.markers.push(marker);
+	},
+
+	addMarkerSet: function (markerSetArray) {
+		for (i = 0; i < ViewModel.placeList().length; i++) {
+			ViewModel.addMarker(ViewModel.placeList()[i].lat, ViewModel.placeList()[i].lng);
+		}
+
+	},
+
+	setMarker: function (map) {
+		for (var i = 0; i < ViewModel.markers().length; i++) {
+			ViewModel.markers()[i].setMap(map);
+		}
+	},
+
+	removeMarker: function () {
+		ViewModel.clearMarkers();
+		ViewModel.markers = ko.observableArray([]);
+	},
+
+	displayMarker: function () {
+		for (i = 0; i < ViewModel.markers().length; i++) {
+			ViewModel.setMarker(map);
+			// getting the the current (i) when the user click on marker 
+			var infowindow = new google.maps.InfoWindow();
+			google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
+				return function () {
+					// setup content tamplate 
+					var contentString = ViewModel.contentString(currentMarkerI);
+					infowindow.setContent(contentString);
+					infowindow.open(map, marker);
+				};
+			})(marker, i));
+		}
+	},
+
+	clearMarkers: function () {
+		ViewModel.setMarker(null);
+	},
 };
 
 ViewModel.query.subscribe(ViewModel.search);
