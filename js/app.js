@@ -67,12 +67,12 @@ var ViewModel = {
 	search: function (value) {
 		//ViewModel.placeList.removeAll();
 		if (value === '') {
-			ViewModel.removeMarker();
+			ViewModel.clearMarkers();
 			console.log('Empty Value return placeData');
 			ViewModel.placeList(placesData);
 			console.log('ViewModel.placeList()');
 			console.log(ViewModel.placeList());
-			ViewModel.removeMarker();
+			ViewModel.clearMarkers();
 			ViewModel.addMarkerSet(ViewModel.markers());
 			console.log('ViewModel.markers()');
 			console.log(ViewModel.markers());
@@ -81,7 +81,7 @@ var ViewModel = {
 			ViewModel.placeList.removeAll();
 			console.log('Before Remove ViewModel.markers()');
 			console.log(ViewModel.markers());
-			ViewModel.removeMarker();
+			ViewModel.clearMarkers();
 			console.log('After Remove ViewModel.markers()');
 			console.log(ViewModel.markers());
 			console.log('Not Empty Value return founded data');
@@ -92,7 +92,7 @@ var ViewModel = {
 			}
 			console.log('Before Add ViewModel.addMarkerSet()');
 			console.log(ViewModel.markers());
-			//ViewModel.addMarkerSet(ViewModel.placeList());
+			ViewModel.addMarkerSet(ViewModel.placeList());
 			ViewModel.displayMarker();
 			console.log('After add ViewModel.markers()');
 			console.log(ViewModel.markers());
@@ -116,31 +116,6 @@ var ViewModel = {
 			'</div>';
 	},
 
-
-	renderMarkers: function (map) {
-		var infowindow = new google.maps.InfoWindow();
-
-		// Display markers from markerData
-		for (i = 0; i < ViewModel.placeList().length; i++) {
-			// setup marker position and animation
-			marker = new google.maps.Marker({
-				position: new google.maps.LatLng(ViewModel.placeList()[i].lat, ViewModel.placeList()[i].lng),
-				map: map,
-				animation: google.maps.Animation.DROP
-			});
-
-			// getting the the current (i) when the user click on marker 
-			google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
-				return function () {
-					// setup content tamplate 
-					var contentString = ViewModel.contentString(currentMarkerI);
-					infowindow.setContent(contentString);
-					infowindow.open(map, marker);
-				};
-			})(marker, i));
-		}
-	},
-
 	markers: ko.observableArray([]),
 
 	initMap: function () {
@@ -157,7 +132,7 @@ var ViewModel = {
 
 	},
 
-	addMarker: function (lat, lng) {
+	addMarker: function (lat, lng, i) {
 		marker = new google.maps.Marker({
 			position: new google.maps.LatLng(lat, lng),
 			map: map,
@@ -165,11 +140,22 @@ var ViewModel = {
 		});
 		ViewModel.displayMarker();
 		ViewModel.markers.push(marker);
+
+		// getting the the current (i) when the user click on marker 
+		var infowindow = new google.maps.InfoWindow();
+		google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
+			return function () {
+				// setup content tamplate 
+				var contentString = ViewModel.contentString(currentMarkerI);
+				infowindow.setContent(contentString);
+				infowindow.open(map, marker);
+			};
+		})(marker, i));
 	},
 
 	addMarkerSet: function (markerSetArray) {
 		for (i = 0; i < ViewModel.placeList().length; i++) {
-			ViewModel.addMarker(ViewModel.placeList()[i].lat, ViewModel.placeList()[i].lng);
+			ViewModel.addMarker(ViewModel.placeList()[i].lat, ViewModel.placeList()[i].lng, i);
 		}
 	},
 
@@ -187,21 +173,14 @@ var ViewModel = {
 	displayMarker: function () {
 		for (i = 0; i < ViewModel.markers().length; i++) {
 			ViewModel.setMarker(map);
-			// getting the the current (i) when the user click on marker 
-			var infowindow = new google.maps.InfoWindow();
-			google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
-				return function () {
-					// setup content tamplate 
-					var contentString = ViewModel.contentString(currentMarkerI);
-					infowindow.setContent(contentString);
-					infowindow.open(map, marker);
-				};
-			})(marker, i));
 		}
 	},
 
 	clearMarkers: function () {
-		ViewModel.setMarker(null);
+		for (i = 0; i < ViewModel.markers().length; i++) {
+			ViewModel.setMarker(null);
+		}
+		ViewModel.markers = ko.observableArray([]);
 	},
 };
 
