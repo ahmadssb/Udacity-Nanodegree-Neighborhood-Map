@@ -8,9 +8,10 @@ var centerLatLng = {
 };
 
 // markers data
+var tempData = [];
 var placesData = [
 	{
-		name: 'GISTIC0',
+		name: 'BGISTIC0',
 		desc: 'description about GISTIC0',
 		address: 'address GISTIC0',
 		link: 'http://www.gistic.org',
@@ -18,7 +19,7 @@ var placesData = [
 		lng: 39.9535998
 	},
 	{
-		name: 'GISTIC1',
+		name: 'BGISTIC1',
 		desc: 'description about GISTIC1',
 		address: 'address GISTIC1',
 		link: 'http://www.gistic.org',
@@ -53,24 +54,48 @@ var Places = function (data) {
 
 var ViewModel = {
 	searchBar: ko.observable(''),
-	currentPlace: ko.observable(0),
+	placeList: ko.observableArray(placesData),
 
 	init: function () {
 		var self = this;
-		this.placeList = ko.observableArray(placesData);
+		//this.placeList = ko.observableArray(placesData);
+		console.log(ViewModel.placeList());
 	},
 
-	search: function () {
+	query: ko.observable(''),
 
+	search: function (value) {
+		//ViewModel.placeList.removeAll();
+		if (value === '') {
+			console.log('Empty Value return placeData');
+			ViewModel.placeList(placesData);
+			console.log(ViewModel.placeList());
+			console.log(placesData);
+			
+		} else {
+			ViewModel.placeList(tempData);
+			ViewModel.placeList.removeAll();
+			console.log('Not Empty Value return founded data');
+			for (var x in placesData) {
+		   //ViewModel.placeList().visible=false;
+			if (placesData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+				ViewModel.placeList.push(placesData[x]);
+				//placesData[x].visibile= true;
+			}
+		}
+		}
+		
 	},
 	setCurrentPlace: function () {
 
 	}
+	
+	
 };
 
-///ViewModel.query.subscribe(ViewModel.search);
+ViewModel.query.subscribe(ViewModel.search);
 
-ko.applyBindings(ViewModel.init);
+ko.applyBindings(ViewModel);
 
 
 function initMap() {
