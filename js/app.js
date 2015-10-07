@@ -71,70 +71,69 @@ var ViewModel = {
 			ViewModel.placeList(placesData);
 			console.log(ViewModel.placeList());
 			console.log(placesData);
-			
+
 		} else {
 			ViewModel.placeList(tempData);
 			ViewModel.placeList.removeAll();
 			console.log('Not Empty Value return founded data');
 			for (var x in placesData) {
-		   //ViewModel.placeList().visible=false;
-			if (placesData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
-				ViewModel.placeList.push(placesData[x]);
-				//placesData[x].visibile= true;
+				//ViewModel.placeList().visible=false;
+				if (placesData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+					ViewModel.placeList.push(placesData[x]);
+					//placesData[x].visibile= true;
+				}
 			}
 		}
-		}
-		
+
 	},
 	setCurrentPlace: function () {
 
 	},
-	
+
 	initMap: function () {
-	'use strict';
-	infowindow = new google.maps.InfoWindow();
+		'use strict';
+		infowindow = new google.maps.InfoWindow();
 
-	// Create a map object and specify the DOM element for display.
-	var map = new google.maps.Map(document.getElementById('map'), {
-		center: centerLatLng,
-		scrollwheel: false,
-		mapTypeId: google.maps.MapTypeId.ROADMAP,
-		zoom: 16
-	});
-
-	// Display markers from markerData
-	for (i = 0; i < placesData.length; i++) {
-		// setup marker position and animation
-		marker = new google.maps.Marker({
-			position: new google.maps.LatLng(placesData[i].lat, placesData[i].lng),
-			map: map,
-			animation: google.maps.Animation.DROP
+		// Create a map object and specify the DOM element for display.
+		var map = new google.maps.Map(document.getElementById('map'), {
+			center: centerLatLng,
+			scrollwheel: false,
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			zoom: 16
 		});
 
-		// getting the the current (i) when the user click on marker 
-		google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
-			return function () {
-				// setup content tamplate 
-				var contentString = '<div id="content">' +
-					'<div id="siteNotice">' +
-					'</div>' +
-					'<h4 id="firstHeading" class="firstHeading">' + placesData[currentMarkerI].name + '</h4>' +
-					'<div id="bodyContent">' +
-					'<h6>' + placesData[currentMarkerI].desc + '</h6>' +
-					'<p>' + placesData[currentMarkerI].address + '</p>' +
-					'<p>Website: <a href="' + placesData[currentMarkerI].link + '" target="_blank">' + placesData[currentMarkerI].link + '</a> </p>' +
-					'</div>' +
-					'</div>';
-				infowindow.setContent(contentString);
-				infowindow.open(map, marker);
-			};
-		})(marker, i));
+		// Display markers from markerData
+		for (i = 0; i < placesData.length; i++) {
+			// setup marker position and animation
+			marker = new google.maps.Marker({
+				position: new google.maps.LatLng(placesData[i].lat, placesData[i].lng),
+				map: map,
+				animation: google.maps.Animation.DROP
+			});
+
+			// getting the the current (i) when the user click on marker 
+			google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
+				return function () {
+					// setup content tamplate 
+					var contentString = '<div id="content">' +
+						'<div id="siteNotice">' +
+						'</div>' +
+						'<h4 id="firstHeading" class="firstHeading">' + placesData[currentMarkerI].name + '</h4>' +
+						'<div id="bodyContent">' +
+						'<h6>' + placesData[currentMarkerI].desc + '</h6>' +
+						'<p>' + placesData[currentMarkerI].address + '</p>' +
+						'<p>Website: <a href="' + placesData[currentMarkerI].link + '" target="_blank">' + placesData[currentMarkerI].link + '</a> </p>' +
+						'</div>' +
+						'</div>';
+					infowindow.setContent(contentString);
+					infowindow.open(map, marker);
+				};
+			})(marker, i));
+		}
 	}
-}
-	
+
 };
 
 ViewModel.query.subscribe(ViewModel.search);
 
 ko.applyBindings(ViewModel);
-
