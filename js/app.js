@@ -56,6 +56,12 @@ var ViewModel = {
 	searchBar: ko.observable(''),
 	placeList: ko.observableArray(placesData),
 
+	//currenPlace: ko.observable(this.placeList()[0]),
+
+	setCurrentPlace: function (placeId) {
+		//ViewModel.currenPlace(placeId.toString());
+		console.log("currenPlace: " + placeId);
+	},
 	init: function () {
 		var self = this;
 		//this.placeList = ko.observableArray(placesData);
@@ -99,10 +105,7 @@ var ViewModel = {
 		}
 
 	},
-
-	setCurrentPlace: function () {
-
-	},
+	
 
 	contentString: function (currentMarkerI) {
 		return '<div id="content">' +
@@ -119,10 +122,10 @@ var ViewModel = {
 
 	markers: ko.observableArray([]),
 
-	// {Doesn't select the correct marker} To Open infoWindow for the selected place
+	// {Doesn't select the correct marker yet} To Open infoWindow for the selected place
 	selectedPlace: function (id) {
 		var infowindow = new google.maps.InfoWindow();
-		var contentString = ViewModel.contentString(id);
+		contentString = ViewModel.contentString(id);
 		infowindow.setContent(contentString);
 		infowindow.open(map, marker);
 	},
@@ -156,7 +159,7 @@ var ViewModel = {
 		google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
 			return function () {
 				// setup content tamplate 
-				var contentString = ViewModel.contentString(currentMarkerI);
+				contentString = ViewModel.contentString(currentMarkerI);
 				infowindow.setContent(contentString);
 				infowindow.open(map, marker);
 			};
@@ -173,11 +176,6 @@ var ViewModel = {
 		for (var i = 0; i < ViewModel.markers().length; i++) {
 			ViewModel.markers()[i].setMap(map);
 		}
-	},
-
-	removeMarker: function () {
-		ViewModel.clearMarkers();
-		ViewModel.markers = ko.observableArray([]);
 	},
 
 	displayMarker: function () {
