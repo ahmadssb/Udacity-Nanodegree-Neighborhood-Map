@@ -20,7 +20,8 @@
 				<div data-bind="foreach : placeList">
 					<p data-bind="click: $parent.setCurrentPlace">
 						<span data-bind="text: $data.name"></span> - <span data-bind="text: $data.address"></span> -
-						<span data-bind="text: $data.desc"></span> - <a data-bind="attr: {href: link}" target="_blank"><span data-bind="text: $data.link"></span></a> 					  </p>
+						<span data-bind="text: $data.desc"></span> - <a data-bind="attr: {href: link}" target="_blank"><span data-bind="text: $data.link"></span></a>
+				  </p>
 				</div>
 			</div>
 			<div id="map" class="map col-xs-12 col-md-8 ">

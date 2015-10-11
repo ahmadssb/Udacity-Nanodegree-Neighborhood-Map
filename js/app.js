@@ -16,7 +16,8 @@ var placesData = [
 		address: 'address GISTIC0',
 		link: 'http://www.gistic.org',
 		lat: 21.3286303,
-		lng: 39.9535998
+		lng: 39.9535998,
+		marker: null
 	},
 	{
 		name: 'BGISTIC1',
@@ -24,7 +25,8 @@ var placesData = [
 		address: 'address GISTIC1',
 		link: 'http://www.gistic.org',
 		lat: 21.330729,
-		lng: 39.954801
+		lng: 39.954801,
+		marker: null
 	},
 	{
 		name: 'GISTIC2',
@@ -32,7 +34,8 @@ var placesData = [
 		address: 'address GISTIC2',
 		link: 'http://www.gistic.org',
 		lat: 21.328651,
-		lng: 39.953869
+		lng: 39.953869,
+		marker: null
 	},
 	{
 		name: 'GISTIC3',
@@ -40,7 +43,8 @@ var placesData = [
 		address: 'address GISTIC3',
 		link: 'http://www.gistic.org',
 		lat: 21.3291708,
-		lng: 39.9482042
+		lng: 39.9482042,
+		marker: null
 	}];
 
 var Places = function (data) {
@@ -48,24 +52,34 @@ var Places = function (data) {
 	this.desc = ko.observable(data.desc);
 	this.address = ko.observable(data.address);
 	this.link = ko.observable(data.link);
+	this.marker = ko.observable(data.marker);
 	this.lat = ko.observable(data.lat);
 	this.lng = ko.observable(data.lng);
 };
 
 var ViewModel = {
 	searchBar: ko.observable(''),
-	placeList: ko.observableArray(placesData),
+	placeList: ko.observableArray([]),
+	currenPlace: ko.observable(),
 
-	//currenPlace: ko.observable(this.placeList()[0]),
-
-	setCurrentPlace: function (placeId) {
-		//ViewModel.currenPlace(placeId.toString());
-		console.log("currenPlace: " + placeId);
+	setCurrentPlace: function (clickedPlace) {
+		ViewModel.currenPlace(clickedPlace);
+		//console.log("currenPlace: " + clickedPlace);
 	},
+
 	init: function () {
 		var self = this;
-		//this.placeList = ko.observableArray(placesData);
+		//ViewModel.placeList.clear;
+
+		placesData.forEach(function (place) {
+			ViewModel.placeList.push(new Places(place));
+		});
+
+		ViewModel.currenPlace(ViewModel.placeList()[0]);
+		console.log("init placeList(): ");
 		console.log(ViewModel.placeList());
+
+		//ViewModel.initMap();
 	},
 
 	query: ko.observable(''),
@@ -74,48 +88,56 @@ var ViewModel = {
 		//ViewModel.placeList.removeAll();
 		if (value === '') {
 			ViewModel.clearMarkers();
-			console.log('Empty Value return placeData');
-			ViewModel.placeList(placesData);
-			console.log('ViewModel.placeList()');
-			console.log(ViewModel.placeList());
+			//console.log('Empty Value return placeData');
+			placesData.forEach(function (place) {
+				ViewModel.placeList.push(new Places(place));
+			});
+			//console.log('ViewModel.placeList()');
+			//console.log(ViewModel.placeList());
 			ViewModel.clearMarkers();
 			ViewModel.addMarkerSet(ViewModel.markers());
-			console.log('ViewModel.markers()');
-			console.log(ViewModel.markers());
+			//console.log('ViewModel.markers()');
+			//console.log(ViewModel.markers());
 		} else {
-			ViewModel.placeList(tempData);
+			ViewModel.placeList([]);
 			ViewModel.placeList.removeAll();
-			console.log('Before Remove ViewModel.markers()');
-			console.log(ViewModel.markers());
+			//console.log('Before Remove ViewModel.markers()');
+			//console.log(ViewModel.markers());
 			ViewModel.clearMarkers();
-			console.log('After Remove ViewModel.markers()');
-			console.log(ViewModel.markers());
-			console.log('Not Empty Value return founded data');
-			for (var x in placesData) {
-				if (placesData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
-					ViewModel.placeList.push(placesData[x]);
+			//console.log('After Remove ViewModel.markers()');
+			//console.log(ViewModel.markers());
+			//console.log('Not Empty Value return founded data');
+
+			placesData.forEach(function (place) {
+				for (var x in placesData) {
+					if (placesData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+						ViewModel.placeList.push(new Places(place));
+						console.log("X: " + x);
+					}
 				}
-			}
-			console.log('Before Add ViewModel.addMarkerSet()');
-			console.log(ViewModel.markers());
+
+			});
+
+			//console.log('Before Add ViewModel.addMarkerSet()');
+			//console.log(ViewModel.markers());
 			ViewModel.addMarkerSet(ViewModel.placeList());
 			ViewModel.displayMarker();
-			console.log('After add ViewModel.markers()');
-			console.log(ViewModel.markers());
+			//console.log('After add ViewModel.markers()');
+			//console.log(ViewModel.markers());
 		}
 
 	},
-	
+
 
 	contentString: function (currentMarkerI) {
 		return '<div id="content">' +
 			'<div id="siteNotice">' +
 			'</div>' +
-			'<h4 id="firstHeading" class="firstHeading">' + ViewModel.placeList()[currentMarkerI].name + '</h4>' +
+			'<h4 id="firstHeading" class="firstHeading">' + ViewModel.placeList()[currentMarkerI].name() + '</h4>' +
 			'<div id="bodyContent">' +
-			'<h6>' + ViewModel.placeList()[currentMarkerI].desc + '</h6>' +
-			'<p>' + ViewModel.placeList()[currentMarkerI].address + '</p>' +
-			'<p>Website: <a href="' + ViewModel.placeList()[currentMarkerI].link + '" target="_blank">' + ViewModel.placeList()[currentMarkerI].link + '</a> </p>' +
+			'<h6>' + ViewModel.placeList()[currentMarkerI].desc() + '</h6>' +
+			'<p>' + ViewModel.placeList()[currentMarkerI].address() + '</p>' +
+			'<p>Website: <a href="' + ViewModel.placeList()[currentMarkerI].link + '" target="_blank">' + ViewModel.placeList()[currentMarkerI].link() + '</a> </p>' +
 			'</div>' +
 			'</div>';
 	},
@@ -124,25 +146,27 @@ var ViewModel = {
 
 	// {Doesn't select the correct marker yet} To Open infoWindow for the selected place
 	selectedPlace: function (id) {
-		var infowindow = new google.maps.InfoWindow();
+		infowindow = new google.maps.InfoWindow();
 		contentString = ViewModel.contentString(id);
 		infowindow.setContent(contentString);
 		infowindow.open(map, marker);
 	},
 
 	initMap: function () {
+		//ViewModel.init();
 		map = new google.maps.Map(document.getElementById('map'), {
 			center: centerLatLng,
 			scrollwheel: false,
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 			zoom: 16
 		});
-		//ViewModel.renderMarkers(map);
 		ViewModel.addMarkerSet(ViewModel.markers());
-		console.log('markers');
-		console.log(ViewModel.markers());
-		
-		ViewModel.selectedPlace(3);
+		console.log('initMap');
+		console.log(ViewModel.placeList());
+
+		//console.log(ViewModel.markers());
+
+		//ViewModel.selectedPlace(0);
 	},
 
 	addMarker: function (lat, lng, i) {
@@ -153,9 +177,10 @@ var ViewModel = {
 		});
 		ViewModel.displayMarker();
 		ViewModel.markers.push(marker);
+		////console.log("markers: " + ViewModel.markers());
 
 		// getting the the current (i) when the user click on marker 
-		var infowindow = new google.maps.InfoWindow();
+		infowindow = new google.maps.InfoWindow();
 		google.maps.event.addListener(marker, 'click', (function (marker, currentMarkerI) {
 			return function () {
 				// setup content tamplate 
@@ -168,11 +193,15 @@ var ViewModel = {
 
 	addMarkerSet: function (markerSetArray) {
 		for (i = 0; i < ViewModel.placeList().length; i++) {
-			ViewModel.addMarker(ViewModel.placeList()[i].lat, ViewModel.placeList()[i].lng, i);
+			ViewModel.addMarker(ViewModel.placeList()[i].lat(), ViewModel.placeList()[i].lng(), i);
+			//ViewModel.selectedPlace(i);
+			console.log(ViewModel.placeList()[i].lat());
+
 		}
 	},
 
 	setMarker: function (map) {
+
 		for (var i = 0; i < ViewModel.markers().length; i++) {
 			ViewModel.markers()[i].setMap(map);
 		}
@@ -191,7 +220,6 @@ var ViewModel = {
 		ViewModel.markers = ko.observableArray([]);
 	},
 };
-
+ViewModel.init();
 ViewModel.query.subscribe(ViewModel.search);
-
 ko.applyBindings(ViewModel);
