@@ -17,10 +17,9 @@
 				<form action="#">
 					<input placeholder="Search…" type="search" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off">
 				</form>
-				<div data-bind="foreach : placeList">
+				<div data-bind="foreach : foursquareList">
 					<p data-bind="click: $parent.setCurrentPlace">
-						<span data-bind="text: $data.name"></span> - <span data-bind="text: $data.address"></span> -
-						<span data-bind="text: $data.desc"></span> - <a data-bind="attr: {href: link}" target="_blank"><span data-bind="text: $data.link"></span></a>
+						<span data-bind="text: $data.name"></span> - <span data-bind="text: $data.address"></span> 
 				  </p>
 				</div>
 			</div>
