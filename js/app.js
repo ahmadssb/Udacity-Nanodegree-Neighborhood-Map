@@ -10,6 +10,7 @@ var centerLatLng = {
 
 // markers data
 var tempData = [];
+var foursquareData = []
 var placesData = [
 	{
 		name: 'BGISTIC0',
@@ -48,9 +49,31 @@ var placesData = [
 		marker: {}
 	}];
 
+var foursquareBaseUri = "https://api.foursquare.com/v2/venues/search?";
+var foursquareClientId = "012U2GL5VVR52WLULMSOXOODKHJW3C53OBTI5ZA4KAYU5BG1";
+var foursquareClientSecret = "43A2ZPGGC1KSP1QMVHT2CDRTD2RCLGCITNIVI5Q1HCNBJK1P";
+var centerLocation = centerLatLng.lat + "," + centerLatLng.lng;
+var limit = 10;
+var extraParams = "&limit=" + limit + "&query=restaurant";
+var foursquareURL = foursquareBaseUri + "client_id=" + foursquareClientId + "&client_secret=" + foursquareClientSecret + "&v=20130815" + "&ll=" + centerLocation + extraParams;
+
 var ViewModel = {
 	searchBar: ko.observable(''),
 	placeList: ko.observableArray(placesData),
+
+	foursquareList: ko.observableArray(foursquareData),
+
+	foursquare: function () {
+		$.getJSON(foursquareURL, function (data) {
+			console.log(data.response.venues.length);
+			for (var i in data.response.venues) {
+				ViewModel.foursquareList.push(data.response.venues[i]);
+			}
+			//console.log(ViewModel.foursquareList());
+
+
+		});
+	},
 
 	setCurrentPlace: function (placeId) {
 		//ViewModel.currenPlace(placeId.toString());
@@ -60,7 +83,7 @@ var ViewModel = {
 		console.log("index: " + index);
 		ViewModel.selectedPlace(index);
 	},
-	
+
 	query: ko.observable(''),
 
 	search: function (value) {
@@ -96,7 +119,7 @@ var ViewModel = {
 			console.log(ViewModel.markers());
 		}
 	},
-	
+
 	contentString: function (currentMarkerI) {
 		return '<div id="content">' +
 			'<div id="siteNotice">' +
@@ -125,6 +148,7 @@ var ViewModel = {
 	},
 
 	initMap: function () {
+		ViewModel.foursquare();
 		map = new google.maps.Map(document.getElementById('map'), {
 			center: centerLatLng,
 			scrollwheel: false,
@@ -134,6 +158,9 @@ var ViewModel = {
 		ViewModel.addMarkerSet(ViewModel.markers());
 		console.log('markers');
 		console.log(ViewModel.markers());
+		console.log(ViewModel.foursquare());
+		console.log(ViewModel.foursquareList());
+
 	},
 
 	addMarker: function (lat, lng, i) {
