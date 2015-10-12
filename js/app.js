@@ -4,72 +4,34 @@ var infowindow = null;
 
 // center map
 var centerLatLng = {
-	lat: 21.3989712,
-	lng: 39.8004776
+	lat: 21.408241,
+	lng: 39.809061
 };
 
-// markers data
+// Search data
 var tempData = [];
+// final foursquare JSON Data
 var foursquareData = []
-var placesData = [
-	{
-		name: 'BGISTIC0',
-		desc: 'description about GISTIC0',
-		address: 'address GISTIC0',
-		link: 'http://www.gistic.org',
-		lat: 21.3286303,
-		lng: 39.9535998,
-		marker: {}
-	},
-	{
-		name: 'BGISTIC1',
-		desc: 'description about GISTIC1',
-		address: 'address GISTIC1',
-		link: 'http://www.gistic.org',
-		lat: 21.330729,
-		lng: 39.954801,
-		marker: {}
-	},
-	{
-		name: 'GISTIC2',
-		desc: 'description about GISTIC2',
-		address: 'address GISTIC2',
-		link: 'http://www.gistic.org',
-		lat: 21.328651,
-		lng: 39.953869,
-		marker: {}
-	},
-	{
-		name: 'GISTIC3',
-		desc: 'description about GISTIC3',
-		address: 'address GISTIC3',
-		link: 'http://www.gistic.org',
-		lat: 21.3291708,
-		lng: 39.9482042,
-		marker: {}
-	}];
 
+// setup Foursquare Link
 var foursquareBaseUri = "https://api.foursquare.com/v2/venues/search?";
 var foursquareClientId = "012U2GL5VVR52WLULMSOXOODKHJW3C53OBTI5ZA4KAYU5BG1";
 var foursquareClientSecret = "43A2ZPGGC1KSP1QMVHT2CDRTD2RCLGCITNIVI5Q1HCNBJK1P";
 var centerLocation = centerLatLng.lat + "," + centerLatLng.lng;
-var limit = 20;
+var limit = 15;
 var extraParams = "&limit=" + limit + "&query=restaurant";
 var foursquareURL = foursquareBaseUri + "client_id=" + foursquareClientId + "&client_secret=" + foursquareClientSecret + "&v=20130815" + "&ll=" + centerLocation + extraParams;
 
 var ViewModel = {
-	searchBar: ko.observable(''),
-	placeList: ko.observableArray(placesData),
-
 	foursquareList: ko.observableArray(foursquareData),
-
+	/*
+	* Load Foursquare API and save whatever JSON Elements we need to foursquareData[]
+	*/
 	foursquare: function () {
-		console.log(ViewModel.foursquareList());
-
 		$.getJSON(foursquareURL, function (data) {
-			console.log(data.response.venues.length);
 			var venues = data.response.venues;
 			for (var i in data.response.venues) {
+				// setup a tamplate of what data I need foursquare API response
 				var myData = {
 						name: venues[i].name,
 						address: venues[i].location.country ,
@@ -77,59 +39,53 @@ var ViewModel = {
 						lng: venues[i].location.lng,
 						marker: {}
 					}
+				// push the new object to foursquareList (which will update foursquareData[])
 				ViewModel.foursquareList.push(myData);
 			}
-			console.log(ViewModel.foursquareList());
+			// initiate Google Maps
 			ViewModel.initMap();
 		});
-		console.log(ViewModel.foursquareList());
 	},
-
+	
 	setCurrentPlace: function (placeId) {
-		//ViewModel.currenPlace(placeId.toString());
-		console.log("currenPlace: " + placeId.name);
-		console.log("currenPlace: " + placeId.marker);
-		var index = jQuery(ViewModel.foursquareList()).index(placeId);
-		console.log("index: " + index);
+		var index = $(ViewModel.foursquareList()).index(placeId);
 		ViewModel.selectedPlace(index);
 	},
 
 	query: ko.observable(''),
 
 	search: function (value) {
+		// when value is embty
 		if (value === '') {
-			ViewModel.clearMarkers();
-			console.log('Empty Value return placeData');
+			/*
+			* returun Original foursquareList markers
+			*/
 			ViewModel.foursquareList(foursquareData);
-			console.log('ViewModel.placeList()');
-			console.log(ViewModel.foursquareList());
 			ViewModel.clearMarkers();
 			ViewModel.addMarkerSet(ViewModel.markers());
-			console.log('ViewModel.markers()');
-			console.log(ViewModel.markers());
 		} else {
+			/*
+			*  set foursquareList to tempData and remove all current data and markers
+			*/
 			ViewModel.foursquareList(tempData);
 			ViewModel.foursquareList.removeAll();
-			console.log('Before Remove ViewModel.markers()');
-			console.log(ViewModel.markers());
 			ViewModel.clearMarkers();
-			console.log('After Remove ViewModel.markers()');
-			console.log(ViewModel.markers());
-			console.log('Not Empty Value return founded data');
+			// loop through foursquareData
 			for (var x in foursquareData) {
+				// find the charachter at index [x] of name and compare it with value input
 				if (foursquareData[x].name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+					// add the current index [x] of foursquareData to tempData List (through the new foursquareList array)
 					ViewModel.foursquareList.push(foursquareData[x]);
 				}
 			}
-			console.log('Before Add ViewModel.addMarkerSet()');
-			console.log(ViewModel.markers());
+			// update markers to the new set of places inside foursquareList()
 			ViewModel.addMarkerSet(ViewModel.foursquareList());
+			// display the markers
 			ViewModel.displayMarker();
-			console.log('After add ViewModel.markers()');
-			console.log(ViewModel.markers());
 		}
 	},
 
+	// prepare the content of marker infoWindow
 	contentString: function (currentMarkerI) {
 		return '<div id="content">' +
 			'<div id="siteNotice">' +
@@ -143,36 +99,36 @@ var ViewModel = {
 			'</div>';
 	},
 
+	// an array of markers
 	markers: ko.observableArray([]),
 
 	// To Open infoWindow for the selected place
-	selectedPlace: function (id) {
+	selectedPlace: function (index) {
+		// to close all opened infowindow
 		if (infowindow) {
 			infowindow.close();
 		}
 		infowindow = new google.maps.InfoWindow();
-		contentString = ViewModel.contentString(id);
+		// the content of selected place (index)
+		contentString = ViewModel.contentString(index);
 		infowindow.setContent(contentString);
-		console.log("selectedPlaceInfoWind: " + ViewModel.foursquareList()[id].marker);
-		infowindow.open(map, ViewModel.foursquareList()[id].marker);
+		infowindow.open(map, ViewModel.foursquareList()[index].marker);
 	},
 
+	// Initiate Google Maps 
 	initMap: function () {
-		//ViewModel.foursquare();
+		// setup map Parameters 
 		map = new google.maps.Map(document.getElementById('map'), {
 			center: centerLatLng,
 			scrollwheel: false,
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
-			zoom: 11
+			zoom: 14
 		});
+		// Load google markers 
 		ViewModel.addMarkerSet(ViewModel.markers());
-		console.log('markers');
-		//console.log(ViewModel.markers());
-		//console.log(ViewModel.foursquare());
-		//console.log(ViewModel.foursquareList());
-
 	},
 
+	// setup each marker to its lat and lng and its infowindow content
 	addMarker: function (lat, lng, i) {
 		marker = new google.maps.Marker({
 			position: new google.maps.LatLng(lat, lng),
@@ -181,17 +137,8 @@ var ViewModel = {
 		});
 		ViewModel.displayMarker();
 		ViewModel.markers.push(marker);
+		// make a reference of marker inside the current foursquareList()[i].marker
 		ViewModel.foursquareList()[i].marker = marker;
-//		console.log("placeList()[i].marker" + ViewModel.foursquareList()[i].marker);
-//		console.log("marker" + marker);
-//		if (marker === ViewModel.foursquareList()[i].marker) {
-//			console.log(true);
-//		} else {
-//			console.log(false);
-//		}
-		if (infowindow) {
-			infowindow.close();
-		}
 
 		// getting the the current (i) when the user click on marker 
 		infowindow = new google.maps.InfoWindow();
@@ -201,18 +148,11 @@ var ViewModel = {
 				contentString = ViewModel.contentString(currentMarkerI, marker);
 				infowindow.setContent(contentString);
 				infowindow.open(map, marker);
-//				if (marker === ViewModel.foursquareList()[i].marker) {
-//					console.log("Compare marker === foursquareList.marker");
-//					console.log(true);
-//				} else {
-//					console.log(false);
-//				}
-				console.log("selectedPlaceInfoWind: " + ViewModel.foursquareList()[currentMarkerI].marker);
-
 			};
 		})(marker, i));
 	},
 
+	// add new marker based on foursquareList() lat and lng 
 	addMarkerSet: function (markerSetArray) {
 		for (i = 0; i < ViewModel.foursquareList().length; i++) {
 			ViewModel.addMarker(ViewModel.foursquareList()[i].lat, ViewModel.foursquareList()[i].lng, i);
