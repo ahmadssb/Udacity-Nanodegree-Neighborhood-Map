@@ -64,15 +64,26 @@ var ViewModel = {
 	foursquareList: ko.observableArray(foursquareData),
 
 	foursquare: function () {
+		console.log(ViewModel.foursquareList());
+
 		$.getJSON(foursquareURL, function (data) {
 			console.log(data.response.venues.length);
+			var venues = data.response.venues;
 			for (var i in data.response.venues) {
-				ViewModel.foursquareList.push(data.response.venues[i]);
+				var myData = {
+						name: venues[i].name,
+						address: venues[i].location.country ,
+						lat: venues[i].location.lat ,
+						lng: venues[i].location.lng,
+						marker: {}
+					}
+				ViewModel.foursquareList.push(myData);
 			}
-			//console.log(ViewModel.foursquareList());
-
-
+			console.log(ViewModel.foursquareList());
 		});
+		console.log(ViewModel.foursquareList());
+
+		ViewModel.initMap()
 	},
 
 	setCurrentPlace: function (placeId) {
@@ -148,7 +159,7 @@ var ViewModel = {
 	},
 
 	initMap: function () {
-		ViewModel.foursquare();
+		//ViewModel.foursquare();
 		map = new google.maps.Map(document.getElementById('map'), {
 			center: centerLatLng,
 			scrollwheel: false,
@@ -158,8 +169,8 @@ var ViewModel = {
 		ViewModel.addMarkerSet(ViewModel.markers());
 		console.log('markers');
 		console.log(ViewModel.markers());
-		console.log(ViewModel.foursquare());
-		console.log(ViewModel.foursquareList());
+		//console.log(ViewModel.foursquare());
+		//console.log(ViewModel.foursquareList());
 
 	},
 
